@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-i18n="siteTitle">احسب ابتسامة أرضك - تحليل المساحات</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <!-- شريط التنقل العلوي -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <i class="fas fa-leaf"></i>
+                <span class="logo-text" data-i18n="siteTitle">احسب ابتسامة أرضك</span>
+            </div>
+            
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="index.html" class="nav-link" data-i18n="home">الرئيسية</a>
+                </li>
+                <li class="nav-item">
+                    <a href="calculator.html" class="nav-link" data-i18n="calculator">الآلة الحاسبة</a>
+                </li>
+                <li class="nav-item">
+                    <a href="docs.html" class="nav-link" data-i18n="documentation">التوثيق</a>
+                </li>
+                <li class="nav-item">
+                    <a href="polygon.html" class="nav-link active">تحليل المساحات</a>
+                </li>
+            </ul>
+            
+            <div class="nav-actions">
+                <button id="language-toggle" class="lang-btn">
+                    <i class="fas fa-language"></i>
+                    <span id="lang-text">English</span>
+                </button>
+                <div class="hamburger">
+                    <span class="bar"></span>
+                    <span class="bar"></span>
+                    <span class="bar"></span>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="polygon-main">
+        <div class="container">
+            <div class="polygon-header">
+                <h1 data-i18n="polygonTitle">تحليل المساحات الكبيرة</h1>
+                <p class="polygon-subtitle" data-i18n="polygonSubtitle">تحليل توزيع أنظمة الهلالات على المساحات الشاسعة</p>
+                <p class="polygon-description">قم برفع ملف يحتوي على بيانات مساحة أرضك لتحليل توزيع أنظمة حصاد المياه وتقدير الإنتاجية الكلية</p>
+            </div>
+
+            <div class="polygon-layout">
+                <!-- لوحة رفع الملف -->
+                <div class="input-panel">
+                    <h2 data-i18n="uploadAreaFile">رفع ملف المساحة</h2>
+                    <p class="supported-formats" data-i18n="supportedFormats">الملفات المدعومة: CSV, TXT, GeoJSON</p>
+                    
+                    <div class="file-upload-area" id="file-upload-area">
+                        <div class="file-upload-icon">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                        </div>
+                        <h3>اسحب وأفلت الملف هنا</h3>
+                        <p>أو انقر لاختيار الملف</p>
+                        <input type="file" id="area-file" class="file-input" accept=".csv,.txt,.geojson,.json">
+                        <button class="btn btn-primary" onclick="document.getElementById('area-file').click()">
+                            <i class="fas fa-folder-open"></i>
+                            اختيار الملف
+                        </button>
+                    </div>
+                    
+                    <div class="form-section">
+                        <h2>بيانات التصميم</h2>
+                        <div class="input-group">
+                            <label for="polygon-rainfall" data-i18n="rainfall">معدل هطول الأمطار السنوي</label>
+                            <div class="input-with-unit">
+                                <input type="number" id="polygon-rainfall" min="50" max="1200" value="300">
+                                <span class="unit">مم/سنة</span>
+                            </div>
+                        </div>
+                        
+                        <div class="input-group">
+                            <label for="polygon-slope" data-i18n="slope">ميل الأرض</label>
+                            <div class="input-with-unit">
+                                <input type="number" id="polygon-slope" min="0" max="25" value="5">
+                                <span class="unit">%</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button id="analyze-area-btn" class="btn btn-primary btn-large">
+                        <i class="fas fa-chart-bar"></i>
+                        تحليل المساحة
+                    </button>
+                </div>
+
+                <!-- لوحة النتائج -->
+                <div class="results-panel">
+                    <div class="distribution-canvas-container">
+                        <h3 data-i18n="systemDistribution">توزيع الأنظمة</h3>
+                        <canvas id="distribution-canvas" class="distribution-canvas"></canvas>
+                        <div class="polygon-results" id="polygon-results">
+                            <!-- سيتم عرض النتائج هنا -->
+                        </div>
+                    </div>
+                    
+                    <div class="charts-section">
+                        <h3><i class="fas fa-chart-pie"></i> تحليل الإنتاجية</h3>
+                        <div class="chart-container">
+                            <canvas id="productivity-chart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- قسم التعليمات -->
+            <div class="explanation-section">
+                <h3><i class="fas fa-info-circle"></i> تعليمات استخدام تحليل المساحات</h3>
+                <div class="explanation-content">
+                    <div class="explanation-item">
+                        <h4>تنسيقات الملفات المدعومة</h4>
+                        <p><strong>CSV/TXT:</strong> ملف نصي يحتوي على إحداثيات X,Y (خط طول، عرض) كل سطر يحتوي على زوج إحداثيات</p>
+                        <p><strong>GeoJSON:</strong> ملف GeoJSON قياسي يحتوي على مضلعات Polygon</p>
+                        <p><strong>مثال لملف CSV:</strong><br>35.1234,31.5678<br>35.1235,31.5679<br>35.1236,31.5680</p>
+                    </div>
+                    
+                    <div class="explanation-item">
+                        <h4>كيف يعمل التحليل</h4>
+                        <p>يقوم النظام بحساب المساحة الكلية من الملف، ثم يحسب العدد الأمثل لأنظمة الهلالات بناءً على:</p>
+                        <ul>
+                            <li>معدل هطول الأمطار في المنطقة</li>
+                            <li>ميل الأرض</li>
+                            <li>المسافات المثلى بين الأنظمة</li>
+                            <li>كفاءة تجميع المياه</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="explanation-item">
+                        <h4>المخرجات المتوقعة</h4>
+                        <p>ستحصل على:</p>
+                        <ul>
+                            <li>خريطة توزيع الأنظمة على المساحة</li>
+                            <li>إجمالي عدد الأنظمة الممكنة</li>
+                            <li>تقدير كمية المياه المجمعة سنوياً</li>
+                            <li>تحليل كفاءة استخدام المساحة</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <div class="footer-logo">
+                        <i class="fas fa-leaf"></i>
+                        <span data-i18n="siteTitle">احسب ابتسامة أرضك</span>
+                    </div>
+                    <p class="footer-description" data-i18n="footerDesc">نظام متكامل لتصميم أنظمة حصاد مياه الأمطار</p>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>&copy; 2025 <span data-i18n="siteTitle">احسب ابتسامة أرضك</span>. <span data-i18n="designedBy">صمم من قبل عمر ياسين</span></p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
