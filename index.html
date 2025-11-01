@@ -24,7 +24,8 @@
         #container {
             display: flex;
             flex-direction: column;
-            height: 100vh;
+            min-height: 100vh; /* Changed from height to min-height */
+            position: relative;
         }
         
         #header {
@@ -75,6 +76,7 @@
             flex-direction: column;
             height: 45vh;
             min-height: 300px;
+            position: relative;
         }
         
         #sidebar-content {
@@ -266,13 +268,17 @@
         
         .attribution {
             text-align: center;
-            padding: 10px 0;
+            padding: 15px 0; /* Increased padding */
             border-top: 1px solid #eee;
             font-size: 0.8rem;
             color: #666;
             flex-shrink: 0;
             background: white;
             margin-top: auto;
+            width: 100%;
+            position: relative;
+            z-index: 1000;
+            box-shadow: 0 -2px 5px rgba(0,0,0,0.1); /* Added shadow for visibility */
         }
         
         .attribution a {
@@ -324,6 +330,14 @@
             
             .data-grid {
                 grid-template-columns: 1fr 1fr 1fr;
+            }
+        }
+
+        /* Ensure footer is always visible */
+        @media (max-height: 700px) {
+            .attribution {
+                position: relative;
+                margin-top: 10px;
             }
         }
     </style>
