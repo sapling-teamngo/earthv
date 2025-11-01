@@ -24,7 +24,7 @@
         #container {
             display: flex;
             flex-direction: column;
-            min-height: 100vh; /* Changed from height to min-height */
+            min-height: 100vh;
             position: relative;
         }
         
@@ -266,28 +266,22 @@
             color: #1e5799;
         }
         
-        .attribution {
+        .creator-attribution {
             text-align: center;
-            padding: 15px 0; /* Increased padding */
-            border-top: 1px solid #eee;
+            padding: 10px 0 0 0;
             font-size: 0.8rem;
             color: #666;
-            flex-shrink: 0;
-            background: white;
-            margin-top: auto;
-            width: 100%;
-            position: relative;
-            z-index: 1000;
-            box-shadow: 0 -2px 5px rgba(0,0,0,0.1); /* Added shadow for visibility */
+            margin-top: 15px;
+            border-top: 1px solid #eee;
         }
         
-        .attribution a {
+        .creator-attribution a {
             color: #1e5799;
             text-decoration: none;
             font-weight: 600;
         }
         
-        .attribution a:hover {
+        .creator-attribution a:hover {
             text-decoration: underline;
         }
         
@@ -330,14 +324,6 @@
             
             .data-grid {
                 grid-template-columns: 1fr 1fr 1fr;
-            }
-        }
-
-        /* Ensure footer is always visible */
-        @media (max-height: 700px) {
-            .attribution {
-                position: relative;
-                margin-top: 10px;
             }
         }
     </style>
@@ -412,12 +398,12 @@
                             <p class="info-text">
                                 Data sourced from trusted Jordanian meteorological and water authorities
                             </p>
+                            
+                            <div class="creator-attribution">
+                                Created by <a href="https://www.linkedin.com/in/omaryaseen" target="_blank">Omar Yaseen</a>
+                            </div>
                         </div>
                     </div>
-                </div>
-                
-                <div class="attribution">
-                    Created by <a href="https://www.linkedin.com/in/omaryaseen" target="_blank">Omar Yaseen</a>
                 </div>
             </div>
         </div>
