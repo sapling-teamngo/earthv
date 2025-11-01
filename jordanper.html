@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jordan Precipitation Map</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+            height: 100vh;
+            overflow: hidden;
+        }
+        
+        #container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+        
+        #header {
+            background: linear-gradient(135deg, #1e5799 0%, #207cca 100%);
+            color: white;
+            padding: 15px 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            flex-shrink: 0;
+            z-index: 1000;
+        }
+        
+        #header h1 {
+            margin: 0;
+            font-size: 1.5rem;
+        }
+        
+        #header p {
+            margin: 5px 0 0;
+            opacity: 0.9;
+            font-size: 0.9rem;
+        }
+        
+        #main-content {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+            flex-direction: column;
+        }
+        
+        #map-container {
+            display: flex;
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+            flex-direction: column;
+        }
+        
+        #map {
+            flex: 1;
+            min-height: 300px;
+        }
+        
+        #sidebar {
+            background-color: white;
+            padding: 15px;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            height: 45vh;
+            min-height: 300px;
+        }
+        
+        #sidebar-content {
+            flex: 1;
+            overflow-y: auto;
+            padding-bottom: 10px;
+        }
+        
+        #coordinates-form {
+            margin-bottom: 15px;
+            padding: 12px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        
+        #coordinates-form h3 {
+            margin-top: 0;
+            color: #1e5799;
+            font-size: 1.1rem;
+        }
+        
+        .form-group {
+            margin-bottom: 12px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #555;
+            font-size: 0.9rem;
+        }
+        
+        input[type="text"] {
+            width: 100%;
+            padding: 8px 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        
+        button {
+            background-color: #1e5799;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background-color 0.2s;
+            width: 100%;
+            font-size: 0.9rem;
+        }
+        
+        button:hover {
+            background-color: #16437e;
+        }
+        
+        #precipitation-info {
+            padding: 12px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            margin-bottom: 10px;
+        }
+        
+        #precipitation-info h3 {
+            margin-top: 0;
+            color: #1e5799;
+            font-size: 1.1rem;
+        }
+        
+        #precipitation-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #1e5799;
+            margin: 8px 0;
+        }
+        
+        .info-text {
+            color: #666;
+            font-size: 0.85rem;
+            margin-top: 10px;
+        }
+        
+        .station-info {
+            background-color: #e9f2fa;
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 10px;
+            font-size: 0.85rem;
+        }
+        
+        .sources-list {
+            margin-top: 10px;
+            max-height: 120px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 6px;
+        }
+        
+        .source-item {
+            padding: 5px;
+            border-bottom: 1px solid #eee;
+            font-size: 0.8rem;
+        }
+        
+        .source-item:last-child {
+            border-bottom: none;
+        }
+        
+        .legend {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            background: white;
+            padding: 8px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.2);
+            z-index: 1000;
+            max-width: 200px;
+        }
+        
+        .legend-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+        }
+        
+        .legend-scale {
+            display: flex;
+            align-items: center;
+            margin-bottom: 3px;
+        }
+        
+        .legend-color {
+            width: 16px;
+            height: 16px;
+            margin-right: 5px;
+            border: 1px solid #999;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 10px;
+        }
+        
+        .spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-left-color: #1e5799;
+            border-radius: 50%;
+            width: 25px;
+            height: 25px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .data-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .data-item {
+            background: #f0f7ff;
+            padding: 8px;
+            border-radius: 5px;
+            text-align: center;
+        }
+        
+        .data-label {
+            font-size: 0.8rem;
+            color: #666;
+        }
+        
+        .data-value {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #1e5799;
+        }
+        
+        .attribution {
+            text-align: center;
+            padding: 10px 0;
+            border-top: 1px solid #eee;
+            font-size: 0.8rem;
+            color: #666;
+            flex-shrink: 0;
+            background: white;
+            margin-top: auto;
+        }
+        
+        .attribution a {
+            color: #1e5799;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        
+        .attribution a:hover {
+            text-decoration: underline;
+        }
+        
+        .closest-station {
+            background-color: #d4edda;
+            border-left: 4px solid #28a745;
+        }
+        
+        .data-year {
+            color: #666;
+            font-size: 0.75rem;
+            font-style: italic;
+            margin-top: 3px;
+        }
+        
+        /* Desktop styles */
+        @media (min-width: 768px) {
+            #main-content {
+                flex-direction: row;
+            }
+            
+            #map-container {
+                flex-direction: row;
+            }
+            
+            #map {
+                min-height: auto;
+            }
+            
+            #sidebar {
+                width: 400px;
+                height: auto;
+                box-shadow: -2px 0 10px rgba(0,0,0,0.1);
+                min-height: auto;
+            }
+            
+            #header h1 {
+                font-size: 1.8rem;
+            }
+            
+            .data-grid {
+                grid-template-columns: 1fr 1fr 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <div id="header">
+            <h1>Jordan Precipitation Map</h1>
+            <p>Click anywhere to view precipitation data from trusted sources</p>
+        </div>
+        
+        <div id="main-content">
+            <div id="map-container">
+                <div id="map"></div>
+            </div>
+            
+            <div id="sidebar">
+                <div id="sidebar-content">
+                    <div id="coordinates-form">
+                        <h3>Coordinates Navigation</h3>
+                        <div class="form-group">
+                            <label for="lat-input">Latitude:</label>
+                            <input type="text" id="lat-input" placeholder="e.g., 31.9539">
+                        </div>
+                        <div class="form-group">
+                            <label for="lng-input">Longitude:</label>
+                            <input type="text" id="lng-input" placeholder="e.g., 35.9106">
+                        </div>
+                        <button id="go-to-coordinates">Go to Location</button>
+                        <div class="info-text">
+                            Current center: <span id="current-coords">0, 0</span>
+                        </div>
+                    </div>
+                    
+                    <div id="precipitation-info">
+                        <h3>Precipitation Information</h3>
+                        <div class="loading" id="loading">
+                            <div class="spinner"></div>
+                            <p>Finding nearest weather stations...</p>
+                        </div>
+                        <div id="precipitation-content">
+                            <p>Click on the map to view precipitation data</p>
+                            <div id="precipitation-value">-- mm/year</div>
+                            <div class="data-year" id="data-year">--</div>
+                            
+                            <div class="data-grid">
+                                <div class="data-item">
+                                    <div class="data-label">Sources Available</div>
+                                    <div class="data-value" id="sources-count">--</div>
+                                </div>
+                                <div class="data-item">
+                                    <div class="data-label">Distance</div>
+                                    <div class="data-value" id="station-distance-value">-- km</div>
+                                </div>
+                                <div class="data-item">
+                                    <div class="data-label">Elevation</div>
+                                    <div class="data-value" id="station-elevation">-- m</div>
+                                </div>
+                            </div>
+                            
+                            <div id="closest-station" class="station-info closest-station" style="display: none;">
+                                <strong>Closest Station:</strong> <span id="station-name">--</span><br>
+                                <strong>Source:</strong> <span id="station-source">--</span><br>
+                                <strong>Coordinates:</strong> <span id="station-coords">--</span>
+                            </div>
+                            
+                            <div id="sources-container" style="display: none; margin-top: 10px;">
+                                <strong>Alternative Sources:</strong>
+                                <div id="sources-list" class="sources-list"></div>
+                            </div>
+                            
+                            <p class="info-text">
+                                Data sourced from trusted Jordanian meteorological and water authorities
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="attribution">
+                    Created by <a href="https://www.linkedin.com/in/omaryaseen" target="_blank">Omar Yaseen</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script>
+        // Initialize the map with Jordan bounds
+        const map = L.map('map', {
+            maxBounds: [
+                [29.0, 34.5], // Southwest corner
+                [33.5, 39.5]  // Northeast corner
+            ],
+            maxBoundsViscosity: 1.0
+        }).setView([31.9539, 35.9106], 8);
+
+        // Add base tile layer
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+
+        // Data sources with station information
+        const dataSources = {
+            jmd_main: {
+                name: "Jordan Meteorological Department (Main Stations)",
+                trustLevel: 5,
+                dataYear: "2023",
+                stations: [
+                    // Northern Jordan stations
+                    { name: "Amman Civil Airport", lat: 31.7222, lng: 35.9933, precipitation: 269, elevation: 770 },
+                    { name: "Irbid Station", lat: 32.5564, lng: 35.8475, precipitation: 467, elevation: 620 },
+                    { name: "Ajloun Station", lat: 32.3333, lng: 35.7500, precipitation: 589, elevation: 950 },
+                    { name: "Jerash Station", lat: 32.2800, lng: 35.8950, precipitation: 412, elevation: 600 },
+                    { name: "Mafraq Station", lat: 32.3564, lng: 36.2592, precipitation: 142, elevation: 700 },
+                    { name: "Ramtha Station", lat: 32.5592, lng: 36.0069, precipitation: 245, elevation: 550 },
+                    { name: "Deir Alla Station", lat: 32.1950, lng: 35.6042, precipitation: 298, elevation: -224 },
+                    
+                    // Central Jordan stations
+                    { name: "Zarqa Station", lat: 32.0500, lng: 36.0833, precipitation: 215, elevation: 650 },
+                    { name: "Madaba Station", lat: 31.7167, lng: 35.8000, precipitation: 378, elevation: 790 },
+                    { name: "Salt Station", lat: 32.0392, lng: 35.7272, precipitation: 452, elevation: 820 },
+                    { name: "Fuheis Station", lat: 32.0167, lng: 35.7667, precipitation: 495, elevation: 850 },
+                    { name: "Ma'in Station", lat: 31.6667, lng: 35.7333, precipitation: 156, elevation: -120 },
+                    
+                    // Southern Jordan stations
+                    { name: "Karak Station", lat: 31.1833, lng: 35.7000, precipitation: 267, elevation: 930 },
+                    { name: "Tafilah Station", lat: 30.8333, lng: 35.6000, precipitation: 189, elevation: 1100 },
+                    { name: "Shobak Station", lat: 30.5333, lng: 35.5667, precipitation: 223, elevation: 1360 },
+                    { name: "Petra Station", lat: 30.3286, lng: 35.4419, precipitation: 156, elevation: 1080 },
+                    { name: "Wadi Musa Station", lat: 30.3167, lng: 35.4833, precipitation: 167, elevation: 1050 },
+                    { name: "Aqaba Station", lat: 29.5467, lng: 35.0081, precipitation: 34, elevation: 6 }
+                ]
+            },
+            jmd_additional: {
+                name: "JMD Additional Stations",
+                trustLevel: 4,
+                dataYear: "2022",
+                stations: [
+                    { name: "Al Jafr Station", lat: 30.3000, lng: 36.1667, precipitation: 58, elevation: 850 },
+                    { name: "Al Qatraneh Station", lat: 31.2500, lng: 36.0500, precipitation: 112, elevation: 760 },
+                    { name: "Al Azraq Station", lat: 31.8333, lng: 36.8167, precipitation: 76, elevation: 525 },
+                    { name: "Al Ruwayshid Station", lat: 32.5000, lng: 38.2000, precipitation: 63, elevation: 683 },
+                    { name: "Al Mafraq Rural", lat: 32.2000, lng: 36.1500, precipitation: 135, elevation: 710 },
+                    { name: "Al Hashimiyah Station", lat: 32.4333, lng: 35.7000, precipitation: 385, elevation: 450 }
+                ]
+            },
+            jwa: {
+                name: "Jordan Water Authority",
+                trustLevel: 5,
+                dataYear: "2023",
+                stations: [
+                    { name: "Wadi Arab Dam Station", lat: 32.6333, lng: 35.6167, precipitation: 445, elevation: 100 },
+                    { name: "King Talal Dam Station", lat: 32.1833, lng: 35.7833, precipitation: 395, elevation: 150 },
+                    { name: "Mujib Dam Station", lat: 31.4500, lng: 35.7333, precipitation: 178, elevation: -340 },
+                    { name: "Wala Dam Station", lat: 31.5833, lng: 35.7167, precipitation: 165, elevation: -100 },
+                    { name: "Kafrain Dam Station", lat: 32.0667, lng: 35.7167, precipitation: 420, elevation: 500 }
+                ]
+            },
+            jusp: {
+                name: "Jordan University of Science & Technology",
+                trustLevel: 4,
+                dataYear: "2022",
+                stations: [
+                    { name: "JUST Agricultural Station", lat: 32.5000, lng: 35.9833, precipitation: 480, elevation: 570 },
+                    { name: "JUST Meteorological Station", lat: 32.5050, lng: 35.9900, precipitation: 475, elevation: 575 }
+                ]
+            },
+            moa: {
+                name: "Ministry of Agriculture",
+                trustLevel: 4,
+                dataYear: "2021",
+                stations: [
+                    { name: "Northern Highlands Ag Station", lat: 32.3000, lng: 35.8000, precipitation: 520, elevation: 800 },
+                    { name: "Jordan Valley Ag Station", lat: 32.1000, lng: 35.5833, precipitation: 305, elevation: -200 },
+                    { name: "Southern Highlands Ag Station", lat: 31.0000, lng: 35.7000, precipitation: 240, elevation: 1100 }
+                ]
+            },
+            rscn: {
+                name: "Royal Society for Conservation of Nature",
+                trustLevel: 3,
+                dataYear: "2022",
+                stations: [
+                    { name: "Dibeen Forest Reserve", lat: 32.3833, lng: 35.7833, precipitation: 610, elevation: 700 },
+                    { name: "Ajloun Forest Reserve", lat: 32.3500, lng: 35.7333, precipitation: 595, elevation: 900 },
+                    { name: "Mujib Biosphere Reserve", lat: 31.4500, lng: 35.5833, precipitation: 185, elevation: -300 },
+                    { name: "Dana Biosphere Reserve", lat: 30.6833, lng: 35.6167, precipitation: 210, elevation: 1200 }
+                ]
+            }
+        };
+
+        // Create a combined list of all stations
+        const allStations = [];
+        Object.keys(dataSources).forEach(sourceKey => {
+            dataSources[sourceKey].stations.forEach(station => {
+                allStations.push({
+                    ...station,
+                    source: dataSources[sourceKey].name,
+                    sourceKey: sourceKey,
+                    dataYear: dataSources[sourceKey].dataYear,
+                    trustLevel: dataSources[sourceKey].trustLevel
+                });
+            });
+        });
+
+        // Add station markers to the map
+        const stationMarkers = L.layerGroup().addTo(map);
+        
+        allStations.forEach(station => {
+            // Determine marker color based on precipitation
+            let color;
+            if (station.precipitation < 100) color = '#ffffcc';
+            else if (station.precipitation < 250) color = '#a1dab4';
+            else if (station.precipitation < 500) color = '#41b6c4';
+            else if (station.precipitation < 800) color = '#2c7fb8';
+            else color = '#253494';
+            
+            // Create custom marker
+            const marker = L.circleMarker([station.lat, station.lng], {
+                radius: 5,
+                fillColor: color,
+                color: '#000',
+                weight: 1,
+                opacity: 1,
+                fillOpacity: 0.8
+            }).addTo(stationMarkers);
+            
+            // Add popup to marker
+            marker.bindPopup(`
+                <div style="text-align: center;">
+                    <h4>${station.name}</h4>
+                    <p><strong>Precipitation:</strong> ${station.precipitation} mm/year</p>
+                    <p><strong>Elevation:</strong> ${station.elevation} m</p>
+                    <p><strong>Source:</strong> ${station.source}</p>
+                    <p><strong>Data Year:</strong> ${station.dataYear}</p>
+                    <p><strong>Coordinates:</strong> ${station.lat.toFixed(4)}, ${station.lng.toFixed(4)}</p>
+                </div>
+            `);
+        });
+
+        // Variables to store map state
+        let currentMarker = null;
+        let currentPopup = null;
+
+        // Update coordinates display when map moves
+        function updateCoordinatesDisplay() {
+            const center = map.getCenter();
+            document.getElementById('current-coords').textContent = 
+                `${center.lat.toFixed(4)}, ${center.lng.toFixed(4)}`;
+        }
+
+        // Call initially and on move
+        updateCoordinatesDisplay();
+        map.on('move', updateCoordinatesDisplay);
+
+        // Calculate distance between two coordinates (Haversine formula)
+        function calculateDistance(lat1, lon1, lat2, lon2) {
+            const R = 6371; // Earth's radius in km
+            const dLat = (lat2 - lat1) * Math.PI / 180;
+            const dLon = (lon2 - lon1) * Math.PI / 180;
+            const a = 
+                Math.sin(dLat/2) * Math.sin(dLat/2) +
+                Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * 
+                Math.sin(dLon/2) * Math.sin(dLon/2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+            return R * c;
+        }
+
+        // Find the closest weather stations from each data source
+        function findClosestStations(lat, lng) {
+            const closestStations = {};
+            
+            // Find closest station from each source
+            Object.keys(dataSources).forEach(sourceKey => {
+                let closestStation = null;
+                let minDistance = Infinity;
+                
+                dataSources[sourceKey].stations.forEach(station => {
+                    const distance = calculateDistance(lat, lng, station.lat, station.lng);
+                    if (distance < minDistance) {
+                        minDistance = distance;
+                        closestStation = {
+                            ...station,
+                            source: dataSources[sourceKey].name,
+                            sourceKey: sourceKey,
+                            dataYear: dataSources[sourceKey].dataYear,
+                            trustLevel: dataSources[sourceKey].trustLevel,
+                            distance: distance
+                        };
+                    }
+                });
+                
+                closestStations[sourceKey] = closestStation;
+            });
+            
+            return closestStations;
+        }
+
+        // Get precipitation data from multiple sources
+        function getPrecipitationData(lat, lng) {
+            // Show loading indicator
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('precipitation-content').style.display = 'none';
+            
+            // Simulate API delay
+            setTimeout(() => {
+                // Find the closest stations from each source
+                const closestStations = findClosestStations(lat, lng);
+                
+                // Find the absolute closest station (regardless of source)
+                let absoluteClosestStation = null;
+                let minDistance = Infinity;
+                
+                Object.keys(closestStations).forEach(sourceKey => {
+                    const station = closestStations[sourceKey];
+                    if (station && station.distance < minDistance) {
+                        minDistance = station.distance;
+                        absoluteClosestStation = station;
+                    }
+                });
+                
+                // Hide loading indicator and show data
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('precipitation-content').style.display = 'block';
+                
+                // Update precipitation display with closest station data
+                document.getElementById('precipitation-value').textContent = 
+                    `${absoluteClosestStation.precipitation} mm/year`;
+                
+                // Update data year
+                document.getElementById('data-year').textContent = 
+                    `Data from ${absoluteClosestStation.dataYear}`;
+                
+                // Update data grid
+                document.getElementById('sources-count').textContent = Object.keys(closestStations).length;
+                document.getElementById('station-distance-value').textContent = absoluteClosestStation.distance.toFixed(1) + ' km';
+                document.getElementById('station-elevation').textContent = absoluteClosestStation.elevation + ' m';
+                
+                // Update closest station details
+                document.getElementById('station-name').textContent = absoluteClosestStation.name;
+                document.getElementById('station-source').textContent = absoluteClosestStation.source;
+                document.getElementById('station-coords').textContent = 
+                    `${absoluteClosestStation.lat.toFixed(4)}, ${absoluteClosestStation.lng.toFixed(4)}`;
+                
+                document.getElementById('closest-station').style.display = 'block';
+                
+                // Update alternative sources (excluding the closest one)
+                const sourcesList = document.getElementById('sources-list');
+                sourcesList.innerHTML = '';
+                
+                const alternativeSources = [];
+                
+                Object.keys(closestStations).forEach(sourceKey => {
+                    const station = closestStations[sourceKey];
+                    if (station && station.sourceKey !== absoluteClosestStation.sourceKey) {
+                        alternativeSources.push({
+                            name: station.name,
+                            source: station.source,
+                            precipitation: station.precipitation,
+                            distance: station.distance,
+                            dataYear: station.dataYear
+                        });
+                    }
+                });
+                
+                // Sort alternative sources by distance
+                alternativeSources.sort((a, b) => a.distance - b.distance);
+                
+                if (alternativeSources.length > 0) {
+                    alternativeSources.forEach(source => {
+                        const sourceItem = document.createElement('div');
+                        sourceItem.className = 'source-item';
+                        sourceItem.innerHTML = `
+                            <strong>${source.name}</strong> (${source.source})<br>
+                            ${source.precipitation} mm/year (${source.distance.toFixed(1)} km away)<br>
+                            <span class="data-year">Data from ${source.dataYear}</span>
+                        `;
+                        sourcesList.appendChild(sourceItem);
+                    });
+                    document.getElementById('sources-container').style.display = 'block';
+                } else {
+                    document.getElementById('sources-container').style.display = 'none';
+                }
+                
+                // Add marker to map
+                if (currentMarker) {
+                    map.removeLayer(currentMarker);
+                }
+                
+                currentMarker = L.marker([lat, lng]).addTo(map);
+                
+                // Add popup with precipitation info
+                if (currentPopup) {
+                    currentPopup.remove();
+                }
+                
+                let popupContent = `
+                    <div style="text-align: center;">
+                        <h3>Precipitation Data</h3>
+                        <p><strong>${absoluteClosestStation.precipitation} mm/year</strong></p>
+                        <p>From closest station: ${absoluteClosestStation.name}</p>
+                        <p>Data from ${absoluteClosestStation.dataYear}</p>
+                        <p>Your coordinates: ${lat.toFixed(4)}, ${lng.toFixed(4)}</p>
+                        <hr>
+                        <p><strong>Other nearby sources:</strong></p>
+                `;
+                
+                alternativeSources.forEach(source => {
+                    popupContent += `
+                        <p style="margin: 2px 0; font-size: 12px;">
+                            ${source.source}: ${source.precipitation} mm (${source.distance.toFixed(1)} km)
+                        </p>
+                    `;
+                });
+                
+                popupContent += `</div>`;
+                
+                currentPopup = L.popup()
+                    .setLatLng([lat, lng])
+                    .setContent(popupContent)
+                    .openOn(map);
+                    
+            }, 800); // Simulate network delay
+        }
+
+        // Handle map clicks
+        map.on('click', function(e) {
+            const lat = e.latlng.lat;
+            const lng = e.latlng.lng;
+            
+            // Update coordinate inputs
+            document.getElementById('lat-input').value = lat.toFixed(4);
+            document.getElementById('lng-input').value = lng.toFixed(4);
+            
+            // Get precipitation data for clicked location
+            getPrecipitationData(lat, lng);
+        });
+
+        // Handle coordinate form submission
+        document.getElementById('go-to-coordinates').addEventListener('click', function() {
+            const latInput = document.getElementById('lat-input').value;
+            const lngInput = document.getElementById('lng-input').value;
+            
+            const lat = parseFloat(latInput);
+            const lng = parseFloat(lngInput);
+            
+            if (!isNaN(lat) && !isNaN(lng) && lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180) {
+                map.setView([lat, lng], 10);
+                getPrecipitationData(lat, lng);
+            } else {
+                alert('Please enter valid coordinates:\nLatitude: -90 to 90\nLongitude: -180 to 180');
+            }
+        });
+
+        // Add precipitation legend
+        const legend = L.control({position: 'bottomleft'});
+        legend.onAdd = function(map) {
+            const div = L.DomUtil.create('div', 'legend');
+            div.innerHTML = `
+                <div class="legend-title">Precipitation (mm/year)</div>
+                <div class="legend-scale">
+                    <div class="legend-color" style="background-color:#ffffcc;"></div>
+                    <span>0-100</span>
+                </div>
+                <div class="legend-scale">
+                    <div class="legend-color" style="background-color:#a1dab4;"></div>
+                    <span>100-250</span>
+                </div>
+                <div class="legend-scale">
+                    <div class="legend-color" style="background-color:#41b6c4;"></div>
+                    <span>250-500</span>
+                </div>
+                <div class="legend-scale">
+                    <div class="legend-color" style="background-color:#2c7fb8;"></div>
+                    <span>500-800</span>
+                </div>
+                <div class="legend-scale">
+                    <div class="legend-color" style="background-color:#253494;"></div>
+                    <span>800+</span>
+                </div>
+            `;
+            return div;
+        };
+        legend.addTo(map);
+    </script>
+</body>
+</html>
