@@ -1,271 +1,0 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>تقنية الهلال المائي - الآلة الحاسبة</title>
-    <link rel="stylesheet" href="styles.css">
-    <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌙</text></svg>">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-</head>
-<body>
-    <!-- الشريط العلوي -->
-    <header class="header">
-        <nav class="navbar">
-            <a href="index.html" class="logo">
-                <span class="logo-icon">🌙</span>
-                <span data-i18n="siteTitle">تقنية الهلال المائي</span>
-            </a>
-            
-            <ul class="nav-menu">
-                <li><a href="index.html" class="nav-link" data-i18n="home">الرئيسية</a></li>
-                <li><a href="calculator.html" class="nav-link active" data-i18n="calculator">الآلة الحاسبة</a></li>
-                <li><a href="docs.html" class="nav-link" data-i18n="documentation">التوثيق</a></li>
-                <li>
-                    <button class="lang-toggle" id="lang-toggle">
-                        <span id="lang-text">English</span>
-                        <span>🌐</span>
-                    </button>
-                </li>
-            </ul>
-            
-            <div class="hamburger">
-                <span></span>
-                <span></span>
-                <span></span>
-            </div>
-        </nav>
-    </header>
-
-    <!-- قسم الآلة الحاسبة -->
-    <section class="calculator-section">
-        <div class="calculator-container">
-            <!-- معلومات الآلة الحاسبة -->
-            <div class="calculator-info">
-                <h1 data-i18n="calculatorTitle">تقنية الهلال المائي</h1>
-                <h2 data-i18n="calculatorSubtitle">تصميم نظام حصاد مياه الأمطار بناءً على نجاحات غرب أفريقيا</h2>
-                <p data-i18n="calculatorDesc" style="margin: 1.5rem 0; line-height: 1.6;">
-                    أدخل بيانات موقعك للحصول على تصميم مثالي مستند إلى دراسة WOCAT في بنين التي أظهرت نجاحاً في تحسين إنتاجية المحاصيل بنسبة 50-200%.
-                </p>
-                
-                <div class="feature-card" style="margin: 2rem 0;">
-                    <h3 style="color: var(--primary-color); margin-bottom: 1rem;">📊 مستند إلى دراسة WOCAT</h3>
-                    <p style="line-height: 1.6;">
-                        جميع المعادلات والحسابات مستندة إلى دراسة حالة WOCAT الناجحة في بنين، غرب أفريقيا، مع معلمات تم تحسينها للمناطق الجافة وشبه الجافة.
-                    </p>
-                </div>
-                
-                <div class="feature-card">
-                    <h3 style="color: var(--primary-color); margin-bottom: 1rem;">🌱 النتائج المتوقعة</h3>
-                    <ul style="list-style: none; padding: 0;">
-                        <li style="padding: 0.5rem 0; border-bottom: 1px solid rgba(0,0,0,0.1);">
-                            <strong>زيادة الإنتاجية:</strong> 50-200%
-                        </li>
-                        <li style="padding: 0.5rem 0; border-bottom: 1px solid rgba(0,0,0,0.1);">
-                            <strong>تحسين رطوبة التربة:</strong> 30-80%
-                        </li>
-                        <li style="padding: 0.5rem 0; border-bottom: 1px solid rgba(0,0,0,0.1);">
-                            <strong>كفاءة استخدام المياه:</strong> 60-85%
-                        </li>
-                        <li style="padding: 0.5rem 0;">
-                            <strong>تخزين الكربون:</strong> محسّن بشكل كبير
-                        </li>
-                    </ul>
-                </div>
-            </div>
-
-            <!-- نموذج الآلة الحاسبة -->
-            <div class="calculator-form">
-                <form id="rainwater-calculator">
-                    <h3 data-i18n="basicData">البيانات الأساسية</h3>
-                    
-                    <div class="form-group">
-                        <label class="form-label" for="rainfall" data-i18n="rainfall">معدل هطول الأمطار السنوي</label>
-                        <input type="number" id="rainfall" class="form-input" 
-                               placeholder="أدخل معدل هطول الأمطار" 
-                               min="200" max="1200" step="10" required>
-                        <div class="form-hint" data-i18n="rainfallHint">يجب أن يكون بين 200 و 1200 مم/سنة</div>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label" for="soil-type" data-i18n="soilType">نوع التربة</label>
-                        <select id="soil-type" class="form-select" required>
-                            <option value="">-- اختر نوع التربة --</option>
-                            <option value="sandy" data-i18n="sandy">رملية</option>
-                            <option value="loamy-sandy" data-i18n="loamySandy">رملية طينية</option>
-                            <option value="loamy" data-i18n="loamy">طميية</option>
-                        </select>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label" for="land-use" data-i18n="landUse">نظام استخدام الأرض</label>
-                        <select id="land-use" class="form-select" required>
-                            <option value="">-- اختر نظام استخدام الأرض --</option>
-                            <option value="cropland" data-i18n="cropland">أراضي زراعية</option>
-                            <option value="rangeland" data-i18n="rangeland">مراعي</option>
-                            <option value="degraded-land" data-i18n="degradedLand">أراضي متدهورة</option>
-                        </select>
-                    </div>
-
-                    <h3 style="margin-top: 2rem; margin-bottom: 1rem;" data-i18n="areaData">بيانات المساحة</h3>
-                    
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label class="form-label" for="area" data-i18n="landArea">مساحة الأرض</label>
-                            <input type="number" id="area" class="form-input" 
-                                   placeholder="أدخل المساحة" min="0.1" step="0.1" value="1" required>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label class="form-label" for="area-unit">الوحدة</label>
-                            <select id="area-unit" class="form-select">
-                                <option value="hectare" data-i18n="hectare">هكتار</option>
-                                <option value="acre" data-i18n="acre">فدان</option>
-                                <option value="dunam" data-i18n="dunam">دونم</option>
-                                <option value="square-meter" data-i18n="squareMeter">متر مربع</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label" for="crop" data-i18n="cropType">نوع المحصول</label>
-                        <select id="crop" class="form-select" required>
-                            <option value="">-- اختر نوع المحصول --</option>
-                            <option value="millet" data-i18n="millet">الدخن</option>
-                            <option value="sorghum" data-i18n="sorghum">الذرة الرفيعة</option>
-                            <option value="maize" data-i18n="maize">الذرة</option>
-                            <option value="cowpea" data-i18n="cowpea">اللوبيا</option>
-                            <option value="groundnut" data-i18n="groundnut">الفول السوداني</option>
-                        </select>
-                    </div>
-
-                    <div class="form-actions">
-                        <button type="submit" class="btn btn-calculate" data-i18n="calculateDesign">احسب التصميم</button>
-                        <button type="button" class="btn btn-reset" id="reset-calculator" data-i18n="reset">إعادة تعيين</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-
-        <!-- لوحة النتائج -->
-        <div class="results-panel" id="results-panel">
-            <div class="results-header">
-                <h2 data-i18n="designResults">نتائج التصميم</h2>
-                <div class="results-actions">
-                    <button class="btn-save" id="save-results">
-                        <span>💾</span>
-                        <span data-i18n="saveResults">حفظ النتائج</span>
-                    </button>
-                    <button class="btn-print" id="print-results">
-                        <span>🖨️</span>
-                        <span data-i18n="printResults">طباعة النتائج</span>
-                    </button>
-                </div>
-            </div>
-
-            <!-- الأبعاد الأساسية -->
-            <h3 data-i18n="basicDimensions">الأبعاد الأساسية</h3>
-            <div class="results-grid">
-                <div class="result-card">
-                    <div class="result-label" data-i18n="diameter">قطر الهلال</div>
-                    <div class="result-value" id="result-diameter">--</div>
-                </div>
-                <div class="result-card">
-                    <div class="result-label" data-i18n="depth">عمق الهلال</div>
-                    <div class="result-value" id="result-depth">--</div>
-                </div>
-                <div class="result-card">
-                    <div class="result-label" data-i18n="spacing">المسافة بين الهلالات</div>
-                    <div class="result-value" id="result-spacing">--</div>
-                </div>
-                <div class="result-card">
-                    <div class="result-label" data-i18n="cultivationArea">مساحة الزراعة</div>
-                    <div class="result-value" id="result-cult-area">--</div>
-                </div>
-                <div class="result-card">
-                    <div class="result-label" data-i18n="catchmentArea">مساحة منطقة التجميع</div>
-                    <div class="result-value" id="result-catch-area">--</div>
-                </div>
-            </div>
-
-            <!-- الكفاءة والإنتاجية -->
-            <h3 style="margin-top: 2rem;" data-i18n="efficiency">الكفاءة والإنتاجية</h3>
-            <div class="results-grid">
-                <div class="result-card">
-                    <div class="result-label" data-i18n="waterHarvestingEfficiency">كفاءة حصاد المياه</div>
-                    <div class="result-value" id="result-water-efficiency">--</div>
-                </div>
-                <div class="result-card">
-                    <div class="result-label" data-i18n="yieldIncrease">الزيادة المتوقعة في الإنتاج</div>
-                    <div class="result-value" id="result-yield-increase">--</div>
-                </div>
-                <div class="result-card">
-                    <div class="result-label" data-i18n="soilMoistureIncrease">تحسين رطوبة التربة</div>
-                    <div class="result-value" id="result-soil-moisture">--</div>
-                </div>
-                <div class="result-card">
-                    <div class="result-label">عدد الهلالات في الهكتار</div>
-                    <div class="result-value" id="result-pits-per-hectare">--</div>
-                </div>
-                <div class="result-card">
-                    <div class="result-label">إجمالي عدد الهلالات</div>
-                    <div class="result-value" id="result-total-pits">--</div>
-                </div>
-            </div>
-
-            <!-- الرسوم البيانية -->
-            <h3 style="margin-top: 2rem;" data-i18n="visualResults">النتائج المرئية</h3>
-            <div class="chart-container">
-                <canvas id="design-chart"></canvas>
-            </div>
-
-            <!-- الرسم التوضيحي -->
-            <div class="design-illustration">
-                <h4 data-i18n="designIllustration">الرسم التوضيحي للتصميم</h4>
-                <svg class="illustration-svg" viewBox="0 0 400 200" xmlns="http://www.w3.org/2000/svg">
-                    <!-- منطقة التجميع -->
-                    <rect x="50" y="50" width="300" height="100" fill="#e3f2fd" stroke="#2196f3" stroke-width="2"/>
-                    <text x="200" y="40" text-anchor="middle" font-size="12" fill="#2196f3">منطقة التجميع</text>
-                    
-                    <!-- الهلالات -->
-                    <path d="M 100 150 A 50 25 0 1 1 200 150" fill="#4caf50" stroke="#388e3c" stroke-width="2"/>
-                    <path d="M 250 150 A 50 25 0 1 1 350 150" fill="#4caf50" stroke="#388e3c" stroke-width="2"/>
-                    
-                    <!-- التسميات -->
-                    <text x="150" y="170" text-anchor="middle" font-size="10" fill="#388e3c" id="illustration-diameter">D = --</text>
-                    <text x="300" y="170" text-anchor="middle" font-size="10" fill="#388e3c" id="illustration-depth">H = --</text>
-                    <line x1="200" y1="150" x2="250" y2="150" stroke="#ff9800" stroke-width="2" stroke-dasharray="5,5"/>
-                    <text x="225" y="140" text-anchor="middle" font-size="10" fill="#ff9800" id="illustration-spacing">S = --</text>
-                </svg>
-            </div>
-
-            <!-- التفسير -->
-            <div class="explanation">
-                <h4 data-i18n="spacingExplanation">تفسير التصميم</h4>
-                
-                <h5 data-i18n="whyDimensions">لماذا هذه الأبعاد؟</h5>
-                <p data-i18n="spacingReason">
-                    تم حساب الأبعاد بناءً على دراسة WOCAT التي أظهرت نجاحاً في تحسين إنتاجية المحاصيل بنسبة 50-200% في بنين.
-                </p>
-                
-                <h5 data-i18n="howCalculated">كيف تم حساب الأبعاد؟</h5>
-                <p data-i18n="calculationMethod">
-                    القطر والعمق يحسنان احتباس المياه والمواد العضوية في التربة.
-                </p>
-                <p data-i18n="calculationMethod2">
-                    المسافات تحقق التوازن الأمثل بين التجميع والزراعة.
-                </p>
-                
-                <h5 data-i18n="sourcesTitle">المصادر العلمية</h5>
-                <ul>
-                    <li>WOCAT (2018). Case Study: Half-Moon Technique in Benin. World Overview of Conservation Approaches and Technologies</li>
-                    <li>FAO (2020). Water Harvesting Techniques for Sustainable Agriculture in Drylands</li>
-                    <li>ICRISAT (2019). Sustainable Land Management Practices in West Africa</li>
-                </ul>
-            </div>
-        </div>
-    </section>
-
-    <script src="script.js"></script>
-</body>
-</html>
